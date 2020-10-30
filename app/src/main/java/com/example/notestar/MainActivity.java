@@ -4,8 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,7 +12,8 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    RecyclerView recyclerView;
+    RecyclerView recyclerViewH;
+    RecyclerView recyclerViewV;
     TextView textViewPosition;
     ImageView imageViewPhoto;
     TextView textViewName;
@@ -27,7 +26,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        recyclerView = findViewById(R.id.recyclerView);
+        recyclerViewH = findViewById(R.id.recyclerViewH);
+        recyclerViewV = findViewById(R.id.recyclerViewV);
 
         textViewPosition = findViewById(R.id.textViewDescription);
         imageViewPhoto = findViewById(R.id.imageViewPhoto);
@@ -47,9 +47,13 @@ public class MainActivity extends AppCompatActivity {
         arrayNotesStar.add(new NoteStar(9, "Виктория Боня", "Теле- и радиоведущая, модель, бьюти-блогер", R.drawable.bonyarating));
         arrayNotesStar.add(new NoteStar(10, "Юлия Барановская", "Теле- и радиоведущая и писательница, бывшая гражданская жена футболиста Андрея Аршавина и мать его троих детей", R.drawable.branovskaya));
 
-        NotesStarAdapter adapter = new NotesStarAdapter(arrayNotesStar);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
+        NotesStarAdapter adapter1 = new NotesStarAdapter(arrayNotesStar);
+        recyclerViewH.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewH.setAdapter(adapter1);
+
+        NotesStarAdapter adapter2 = new NotesStarAdapter(arrayNotesStar);
+        recyclerViewV.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewV.setAdapter(adapter2);
 
     }
 }
