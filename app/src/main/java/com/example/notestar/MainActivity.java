@@ -12,13 +12,16 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    RecyclerView recyclerViewH;
-    RecyclerView recyclerViewV;
-    TextView textViewPosition;
-    ImageView imageViewPhoto;
-    TextView textViewName;
-    TextView textViewDescription;
-    ArrayList<NoteStar> arrayNotesStar;
+    private RecyclerView recyclerViewStar;
+    private RecyclerView recyclerViewNomination;
+
+    private TextView textViewPosition;
+    private ImageView imageViewPhoto;
+    private TextView textViewName;
+    private TextView textViewDescription;
+
+    private ArrayList<NoteStar> arrayNotesStar;
+    private ArrayList<StarNomination> arrayStarNominations;
 
 
     @Override
@@ -26,8 +29,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        recyclerViewH = findViewById(R.id.recyclerViewH);
-        recyclerViewV = findViewById(R.id.recyclerViewV);
+        recyclerViewStar = findViewById(R.id.recyclerViewStar);
+        recyclerViewNomination = findViewById(R.id.recyclerViewNomination);
+
 
         textViewPosition = findViewById(R.id.textViewDescription);
         imageViewPhoto = findViewById(R.id.imageViewPhoto);
@@ -47,13 +51,22 @@ public class MainActivity extends AppCompatActivity {
         arrayNotesStar.add(new NoteStar(9, "Виктория Боня", "Теле- и радиоведущая, модель, бьюти-блогер", R.drawable.bonyarating));
         arrayNotesStar.add(new NoteStar(10, "Юлия Барановская", "Теле- и радиоведущая и писательница, бывшая гражданская жена футболиста Андрея Аршавина и мать его троих детей", R.drawable.branovskaya));
 
-        NotesStarAdapter adapter1 = new NotesStarAdapter(arrayNotesStar);
-        recyclerViewH.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        recyclerViewH.setAdapter(adapter1);
+        arrayStarNominations = new ArrayList<>();
 
-        NotesStarAdapter adapter2 = new NotesStarAdapter(arrayNotesStar);
-        recyclerViewV.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewV.setAdapter(adapter2);
+        arrayStarNominations.add(new StarNomination("Вера Брежнева", "авто", 3));
+        arrayStarNominations.add(new StarNomination("Вера Брежнева", "бьюти", 1));
+        arrayStarNominations.add(new StarNomination("Вера Брежнева", "кино", 2));
+        arrayStarNominations.add(new StarNomination("Вера Брежнева", "мода", 3));
+        arrayStarNominations.add(new StarNomination("Вера Брежнева", "музыка", 8));
+
+        StarNominationAdapter adapterNominations = new StarNominationAdapter(arrayStarNominations);
+        recyclerViewNomination.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewNomination.setAdapter(adapterNominations);
+
+        NotesStarAdapter adapterNotes = new NotesStarAdapter(arrayNotesStar);
+        recyclerViewStar.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewStar.setAdapter(adapterNotes);
+
 
     }
 }
