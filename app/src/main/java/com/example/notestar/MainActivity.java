@@ -59,14 +59,15 @@ public class MainActivity extends AppCompatActivity {
         arrayStarNominations.add(new StarNomination("Вера Брежнева", "мода", 3));
         arrayStarNominations.add(new StarNomination("Вера Брежнева", "музыка", 8));
 
-        StarNominationAdapter adapterNominations = new StarNominationAdapter(arrayStarNominations);
-        recyclerViewNomination.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        recyclerViewNomination.setAdapter(adapterNominations);
+
 
         NotesStarAdapter adapterNotes = new NotesStarAdapter(arrayNotesStar);
         recyclerViewStar.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewStar.setAdapter(adapterNotes);
 
+        StarNominationAdapter adapterNominations = new StarNominationAdapter(arrayStarNominations);
+        recyclerViewNomination.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewNomination.setAdapter(adapterNominations);
 
     }
 }
