@@ -1,12 +1,15 @@
 package com.example.notestar;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -22,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<NoteStar> arrayNotesStar;
     private ArrayList<StarNomination> arrayStarNominations;
+    private NotesStarAdapter adapterNotes;
+    private StarNominationAdapter adapterNominations;
 
 
     @Override
@@ -53,21 +58,49 @@ public class MainActivity extends AppCompatActivity {
 
         arrayStarNominations = new ArrayList<>();
 
-        arrayStarNominations.add(new StarNomination("Вера Брежнева", "авто", 3));
-        arrayStarNominations.add(new StarNomination("Вера Брежнева", "бьюти", 1));
-        arrayStarNominations.add(new StarNomination("Вера Брежнева", "кино", 2));
-        arrayStarNominations.add(new StarNomination("Вера Брежнева", "мода", 3));
-        arrayStarNominations.add(new StarNomination("Вера Брежнева", "музыка", 8));
+        arrayStarNominations.add(new StarNomination("menu", "женщины", 1));
+        arrayStarNominations.add(new StarNomination("menu", "мужчины", 2));
+        arrayStarNominations.add(new StarNomination("menu", "дети", 3));
 
 
 
-        NotesStarAdapter adapterNotes = new NotesStarAdapter(arrayNotesStar);
+
+        adapterNotes = new NotesStarAdapter(arrayNotesStar);
         recyclerViewStar.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewStar.setAdapter(adapterNotes);
 
-        StarNominationAdapter adapterNominations = new StarNominationAdapter(arrayStarNominations);
+        adapterNominations = new StarNominationAdapter(arrayStarNominations);
         recyclerViewNomination.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         recyclerViewNomination.setAdapter(adapterNominations);
 
+        adapterNotes.setOnNoteClickListener(new NotesStarAdapter.OnNoteClickListener() {
+            @Override
+            public void onNoteClick(int position) {
+                Toast.makeText(MainActivity.this, "Позиция: "+ position, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNoteLongClick(int position) {
+                 remove(position);
+            }
+        });
+
+        ItemTouchHelper itemTouch = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                remove(viewHolder.getAdapterPosition());
+            }
+        });
+            itemTouch.attachToRecyclerView(recyclerViewStar);
+    }
+
+    private void remove(int position){          //метод удаления элемента
+        arrayNotesStar.remove(position);
+        adapterNotes.notifyDataSetChanged();
     }
 }

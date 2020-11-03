@@ -13,6 +13,16 @@ import java.util.ArrayList;
 
 public class NotesStarAdapter extends RecyclerView.Adapter<NotesStarAdapter.NotesStarViewHolder> {
           private   ArrayList<NoteStar> notes;
+          private OnNoteClickListener onNoteClickListener;
+
+    public void setOnNoteClickListener(OnNoteClickListener onNoteClickListener) {
+        this.onNoteClickListener = onNoteClickListener;
+    }
+
+    public  interface  OnNoteClickListener{
+              void onNoteClick(int position);
+              void onNoteLongClick(int position);
+          }
 
     public NotesStarAdapter(ArrayList<NoteStar> notes) {
         this.notes = notes;
@@ -41,10 +51,10 @@ public class NotesStarAdapter extends RecyclerView.Adapter<NotesStarAdapter.Note
 
     public class NotesStarViewHolder extends RecyclerView.ViewHolder {
 
-       private TextView textViewPosition;
-       private ImageView imageViewPhoto;
-       private TextView textViewName;
-       private TextView textViewDescription;
+        private TextView textViewPosition;
+        private ImageView imageViewPhoto;
+        private TextView textViewName;
+        private TextView textViewDescription;
 
         public NotesStarViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -52,9 +62,26 @@ public class NotesStarAdapter extends RecyclerView.Adapter<NotesStarAdapter.Note
             imageViewPhoto = itemView.findViewById(R.id.imageViewPhoto);
             textViewName = itemView.findViewById(R.id.textViewName);
             textViewDescription = itemView.findViewById((R.id.textViewDescription));
+
+            itemView.setOnClickListener(new View.OnClickListener() {            //простой клик
+                @Override
+                public void onClick(View v) {
+                    if(onNoteClickListener!=null){
+                        int position = getAdapterPosition();
+                        onNoteClickListener.onNoteClick(position);
+                    }
+
+                }
+            });
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {           //долгий клик
+                @Override
+                public boolean onLongClick(View v) {
+                    int position = getAdapterPosition();
+                    onNoteClickListener.onNoteLongClick(position);
+                    return true;
+                }
+            });
+
         }
-
-
     }
-
 }
