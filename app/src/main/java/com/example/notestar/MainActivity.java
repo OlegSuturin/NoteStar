@@ -6,6 +6,9 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
     private NotesStarAdapter adapterNotes;
     private StarNominationAdapter adapterNominations;
 
+    private NotesStarDBHelper dbHelper;
+    ArrayList<NoteStar> arrayNotesStarDB;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         arrayNotesStar = new ArrayList<>();
 
-        arrayNotesStar.add(new NoteStar(1, "Вера Брежнева", "Певица, телеведущая, актриса, экс-участница группы «ВИА Гра», посол доброй воли программы ЮНЭЙДС от ООН, основательница бьюти-марки", R.drawable.brezhneva));
+ /*       arrayNotesStar.add(new NoteStar(1, "Вера Брежнева", "Певица, телеведущая, актриса, экс-участница группы «ВИА Гра», посол доброй воли программы ЮНЭЙДС от ООН, основательница бьюти-марки", R.drawable.brezhneva));
         arrayNotesStar.add(new NoteStar(2, "Настя Ивлеева", "Телеведущая, актриса, youtube-блогер", R.drawable.ivleevanast));
         arrayNotesStar.add(new NoteStar(3, "Рита Дакота", "Певица, автор песен, финалистка \"Фабрики звезд\"", R.drawable.dakotarita));
         arrayNotesStar.add(new NoteStar(4, "Алена Шишкова", "Модель и лицо модных марок. Заняла третье место в конкурсе красоты \"Мисс России-2012\"", R.drawable.shishkovarating));
@@ -55,17 +61,37 @@ public class MainActivity extends AppCompatActivity {
         arrayNotesStar.add(new NoteStar(8, "Айза Долматова", "Бьюти-блогер, дизайнер украшений, владелица сети бутиков, а также телеведущая, актриса и рэп-исполнительница под именем A(Z)IZA. Бывшая жена рэпера Гуфа", R.drawable.aizadolmatova));
         arrayNotesStar.add(new NoteStar(9, "Виктория Боня", "Теле- и радиоведущая, модель, бьюти-блогер", R.drawable.bonyarating));
         arrayNotesStar.add(new NoteStar(10, "Юлия Барановская", "Теле- и радиоведущая и писательница, бывшая гражданская жена футболиста Андрея Аршавина и мать его троих детей", R.drawable.branovskaya));
-
+*/
         arrayStarNominations = new ArrayList<>();
 
         arrayStarNominations.add(new StarNomination("menu", "женщины", 1));
         arrayStarNominations.add(new StarNomination("menu", "мужчины", 2));
         arrayStarNominations.add(new StarNomination("menu", "дети", 3));
 
+        dbHelper = new NotesStarDBHelper(this);
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+
+        for(NoteStar noteStar: arrayNotesStar){
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(NotesStarContract.NotesEntry.COLUMN_POSITION, noteStar.getPosition());
+            contentValues.put(NotesStarContract.NotesEntry.COLUMN_NAME, noteStar.getName());
+            contentValues.put(NotesStarContract.NotesEntry.COLUMN_DESCRIPTION, noteStar.getDescription());
+            contentValues.put(NotesStarContract.NotesEntry.COLUMN_IMAGE_RESOURCE_ID, noteStar.getImageResourceId());
+            database.insert(NotesStarContract.NotesEntry.TABLE_NAME, null, contentValues);
+        }
+
+         arrayNotesStarDB = new ArrayList<>();
+         Cursor cursor = database.query(NotesStarContract.NotesEntry.TABLE_NAME, null, null, null, null, null, null);
+         while(cursor.moveToNext()){
+             int position = cursor.getInt(cursor.getColumnIndex(NotesStarContract.NotesEntry.COLUMN_POSITION));
+             String name = cursor.getString(cursor.getColumnIndex(NotesStarContract.NotesEntry.COLUMN_NAME));
+             String description = cursor.getString((cursor.getColumnIndex(NotesStarContract.NotesEntry.COLUMN_DESCRIPTION)));
+             int imageResourceId = cursor.getInt((cursor.getColumnIndex(NotesStarContract.NotesEntry.COLUMN_IMAGE_RESOURCE_ID)));
+             arrayNotesStarDB.add(new NoteStar(position, name, description, imageResourceId));
+         }
 
 
-
-        adapterNotes = new NotesStarAdapter(arrayNotesStar);
+        adapterNotes = new NotesStarAdapter(arrayNotesStarDB);
         recyclerViewStar.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewStar.setAdapter(adapterNotes);
 
