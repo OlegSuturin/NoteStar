@@ -1,20 +1,24 @@
 package com.example.notestar;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,14 +35,16 @@ public class MainActivity extends AppCompatActivity {
     private NotesStarAdapter adapterNotes;
     private StarNominationAdapter adapterNominations;
 
-    private NotesStarDBHelper dbHelper;
-    ArrayList<NoteStar> arrayNotesStarDB;
-
+    private NotesStarDatabase database;
+    List<NoteStar> arrayNotesStarFromDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar !=null) actionBar.hide();
 
         recyclerViewStar = findViewById(R.id.recyclerViewStar);
         recyclerViewNomination = findViewById(R.id.recyclerViewNomination);
@@ -51,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         arrayNotesStar = new ArrayList<>();
 
- /*       arrayNotesStar.add(new NoteStar(1, "Вера Брежнева", "Певица, телеведущая, актриса, экс-участница группы «ВИА Гра», посол доброй воли программы ЮНЭЙДС от ООН, основательница бьюти-марки", R.drawable.brezhneva));
+/*        arrayNotesStar.add(new NoteStar(1, "Вера Брежнева", "Певица, телеведущая, актриса, экс-участница группы «ВИА Гра», посол доброй воли программы ЮНЭЙДС от ООН, основательница бьюти-марки", R.drawable.brezhneva));
         arrayNotesStar.add(new NoteStar(2, "Настя Ивлеева", "Телеведущая, актриса, youtube-блогер", R.drawable.ivleevanast));
         arrayNotesStar.add(new NoteStar(3, "Рита Дакота", "Певица, автор песен, финалистка \"Фабрики звезд\"", R.drawable.dakotarita));
         arrayNotesStar.add(new NoteStar(4, "Алена Шишкова", "Модель и лицо модных марок. Заняла третье место в конкурсе красоты \"Мисс России-2012\"", R.drawable.shishkovarating));
@@ -68,30 +74,16 @@ public class MainActivity extends AppCompatActivity {
         arrayStarNominations.add(new StarNomination("menu", "мужчины", 2));
         arrayStarNominations.add(new StarNomination("menu", "дети", 3));
 
-        dbHelper = new NotesStarDBHelper(this);
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        database = NotesStarDatabase.getInstance(this);
 
-        for(NoteStar noteStar: arrayNotesStar){
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(NotesStarContract.NotesEntry.COLUMN_POSITION, noteStar.getPosition());
-            contentValues.put(NotesStarContract.NotesEntry.COLUMN_NAME, noteStar.getName());
-            contentValues.put(NotesStarContract.NotesEntry.COLUMN_DESCRIPTION, noteStar.getDescription());
-            contentValues.put(NotesStarContract.NotesEntry.COLUMN_IMAGE_RESOURCE_ID, noteStar.getImageResourceId());
-            database.insert(NotesStarContract.NotesEntry.TABLE_NAME, null, contentValues);
+
+        for (NoteStar noteStar : arrayNotesStar) {
+            database.notesStarDao().insertNoteStar(noteStar);
         }
 
-         arrayNotesStarDB = new ArrayList<>();
-         Cursor cursor = database.query(NotesStarContract.NotesEntry.TABLE_NAME, null, null, null, null, null, null);
-         while(cursor.moveToNext()){
-             int position = cursor.getInt(cursor.getColumnIndex(NotesStarContract.NotesEntry.COLUMN_POSITION));
-             String name = cursor.getString(cursor.getColumnIndex(NotesStarContract.NotesEntry.COLUMN_NAME));
-             String description = cursor.getString((cursor.getColumnIndex(NotesStarContract.NotesEntry.COLUMN_DESCRIPTION)));
-             int imageResourceId = cursor.getInt((cursor.getColumnIndex(NotesStarContract.NotesEntry.COLUMN_IMAGE_RESOURCE_ID)));
-             arrayNotesStarDB.add(new NoteStar(position, name, description, imageResourceId));
-         }
+        getData();
 
-
-        adapterNotes = new NotesStarAdapter(arrayNotesStarDB);
+        adapterNotes = new NotesStarAdapter(arrayNotesStar);
         recyclerViewStar.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewStar.setAdapter(adapterNotes);
 
@@ -102,12 +94,24 @@ public class MainActivity extends AppCompatActivity {
         adapterNotes.setOnNoteClickListener(new NotesStarAdapter.OnNoteClickListener() {
             @Override
             public void onNoteClick(int position) {
-                Toast.makeText(MainActivity.this, "Позиция: "+ position, Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "id: " + arrayNotesStar.get(position).getId(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onNoteLongClick(int position) {
-                 remove(position);
+               // remove(position);
+                NoteStar noteStar = arrayNotesStar.get(position);
+
+                Intent intent = new Intent(MainActivity.this, AddRecordActivity.class);
+
+
+                intent.putExtra("editRecord", true);
+                intent.putExtra("id", noteStar.getId());
+                intent.putExtra("position", noteStar.getPosition());
+                intent.putExtra("name", noteStar.getName());
+                intent.putExtra("description", noteStar.getDescription());
+                intent.putExtra("imageResourceId", noteStar.getImageResourceId());
+                startActivity(intent);
             }
         });
 
@@ -122,11 +126,29 @@ public class MainActivity extends AppCompatActivity {
                 remove(viewHolder.getAdapterPosition());
             }
         });
-            itemTouch.attachToRecyclerView(recyclerViewStar);
+        itemTouch.attachToRecyclerView(recyclerViewStar);
     }
 
-    private void remove(int position){          //метод удаления элемента
-        arrayNotesStar.remove(position);
+    private void remove(int position) {          //метод удаления элемента
+
+        NoteStar noteStar = arrayNotesStar.get(position);
+        database.notesStarDao().deleteNoteStar(noteStar);
+        getData();
         adapterNotes.notifyDataSetChanged();
+    }
+
+    private void getData() {  //читаем из БД
+
+        arrayNotesStarFromDB = database.notesStarDao().getAllNoteStar();
+        arrayNotesStar.clear();
+        arrayNotesStar.addAll(arrayNotesStarFromDB);
+
+    }
+
+
+    public void onClickAdNoteStar(View view) {
+        Intent intent = new Intent(this, AddRecordActivity.class);
+        intent.putExtra("editRecord", 110);
+        startActivity(intent);
     }
 }

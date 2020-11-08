@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">NoteStar</string>
+    <string name="label_number_position">Номер позиции</string>
+    <string name="label_name">Имя номинанта</string>
+    <string name="label_description">Описание номинанта</string>
+    <string name="label_button_add_record">Добавить запись</string>
+    <string name="label_button_edit_record">Применить изменения</string>
+
 </resources>
